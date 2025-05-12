@@ -53,6 +53,7 @@ Antes de comenzar tenemos que realizar varias operaciones previas:
 docker-compose up -d
 ~~~
 
+![](imagenes/imagen1.png)
  
 ### Creación de la Base de Datos
 ---
@@ -65,8 +66,7 @@ Crea la tabla de usuarios. Debería de mostrarte algó así al acceder a:
 http://localhost:8080
 ~~~
 
-![](images/ba1.png)
-
+![](imagenes/imagen2.png)
 
 ### Instalar **hydra** en tu equipos.
 
@@ -77,12 +77,13 @@ Si tu equipo es Linux, puedes instalarlo con:
 ~~~
 sudo apt install hydra
 ~~~
+![](imagenes/imagen3.png)
 
 Si tienes Windows puedes descargarlo desde la página del desarrollador: <https://www.incibe.es/servicio-antibotnet/info/Hydra>
 
 
 ### Descargar el diccionario de contraseñas
-
+cd 
 Podemos encontrar muchos archivos de contraseñas. Vamos a utilizar el que se encuentra en la siguiente dirección:
  <https://weakpass.com/download/90/rockyou.txt.gz>
 
@@ -93,6 +94,7 @@ cd /usr/share
 wget https://weakpass.com/download/90/rockyou.txt.gz
 gunzip rockyou.txt.gz
 ~~~
+![](imagenes/imagen4.png)
 
 ## Código vulnerable
 ---
@@ -139,22 +141,24 @@ $conn->close();
         <button type="submit">Iniciar Sesión</button>
 </form>
 ~~~
+![](imagenes/imagen5.png)
+
 Antes de acceder la página web, asegurarse de que el servicio está en ejecución, y si es necesario, arrancar o reiniciar el servicio.
 
 Acceder a la pagina web aunque también podemos poner directamente el usuario y contraseña. Un ejemplo es  el siguiente enlace:
 
 ~~~
-http://localhost/login_weak.php?username=admin&password=123456
+http://localhost/BA/login_weak.php?username=admin&password=123456
 ~~~
 
 
 Vemos que si los datos son incorrectos nos muestra que no lo es:
 
-![](images/ba2.png)
+![](imagenes/imagen6.png)
 
 Y si es correcta nos lo indica:
 
-![](images/ba3.png)
+![](imagenes/imagen7.png)
 
 
 
@@ -204,11 +208,13 @@ Explicación de los parámetros:
 
 Aquí podemos ver cómo lanzamos el comando:
 
-![](images/ba4.png)
+![](imagenes/imagen8.png)
+
+
 
 Si encontramos un resultado correcto de autenticación, vemos como nos lo muestra:
 
-![](images/ba5.png)
+![](imagenes/imagen9.png)
 
 
 ## Explotación de SQL Injection
@@ -229,7 +235,7 @@ SELECT * FROM users WHERE username = 'admin' AND password = '' OR '1'='1';
 
 Debido a que '1'='1' es siempre verdadero, el atacante obtendría acceso.
 
-![](images/ba6.png)
+![](imagenes/imagen10.png)
 
 
 ## Mitigación: Código Seguro en PHP
@@ -267,7 +273,7 @@ Para almacenar las contraseñas hasheadas, deberemos de modificar la tabla donde
  ALTER TABLE usuarios MODIFY contrasenya VARCHAR(255) NOT NULL; 
 ~~~
 >
-![](images/ba7.png)
+![](imagenes/imagen11.png)
 
 
 >Creamos la función **ạdd_user.php** para introducir los usuarios con su contraseña hasheada (Acuérdate de cambiar MiContraseña por la tuya de root):
@@ -322,22 +328,26 @@ $conn->close();
     <button type="submit">Crear Usuario</button>
 </form>
 ~~~
+![](imagenes/imagen12.png)
 
 En la función **pasword_hash()"** utilizamos la función por defecto: **PASSWORD_DEFAULT** que usa actualmente **BCRYPT**, pero se actualizará automáticamente en versiones futuras de PHP. Si deseas más control, puedes usar **PASSWORD_BCRYPT** o **PASSWORD_ARGON2ID**.
 
 >Como vemos, una vez ejecutado nos informa que el usuario raul con contraseña 123456 ha sido insertado.
->
->![](images/ba8.png)
+>![](imagenes/imagen13.png)
+
+>![](imagenes/imagen14.png)
 
  Lo podemos ver accediendo al servicio phpmyadmin: `http://localhost:8080`
 
-![](images/ba9.png)
+![](imagenes/imagen15.png)
 
  También puedes obtener los usuarios conectandote a la base de datos y ejecutando la consulta:
 
  ~~~
 SELECT * from usuarios
 ~~~
+
+![](imagenes/imagen16.png)
 
 La función **password_hash()** con **PASSWORD_BCRYPT** genera un hash de hasta 60 caracteres, y con
 PASSWORD_ARGON2ID, incluso más (hasta 255). Por eso, se necesita que la columna pueda almacenarlos
@@ -390,16 +400,18 @@ $conn->close();
         <button type="submit">Iniciar Sesión</button>
 </form>
 ~~~
+![](imagenes/imagen17.png)
 
 Como vemos en la siguiente imagen nos da un login exitoso:
 
-![](images/ba10.png)
+![](imagenes/imagen18.png)
 
 También puedes probar a usuarlos introduciendo en el navegador:
 
 ~~~
-http://localhost/login_weak1.php?username=raul&password=123456
+http://localhost/BA/login_weak1.php?username=raul&password=123456
 ~~~
+![](imagenes/imagen19.png)
 
 Si introducimos datos no correcto dará el mensaje de "Usuario o contraseña no correctos"
 
@@ -407,7 +419,7 @@ Si introducimos datos no correcto dará el mensaje de "Usuario o contraseña no 
 http://localhost/login_weak1.php?username=raul&password=1234
 ~~~
 
-![](images/ba10.png)
+![](imagenes/imagen20.png)
 
 
 ### Uso de consultas preparadas
@@ -468,6 +480,8 @@ $conn->close();
 </form>
 
 ~~~
+![](imagenes/imagen21.png)
+
 Como vemos, hemos usado consutas paremetrizadas y además hemos utilizado las funciones para manejar las contraseñas hasheadas:
 
 >🔐 ¿Cómo funciona?
@@ -500,9 +514,12 @@ USE SQLi
 ALTER TABLE usuarios ADD failed_attempts INT DEFAULT 0;
 ALTER TABLE usuarios ADD last_attempt TIMESTAMP NULL DEFAULT NULL;
 ~~~
+
+![](imagenes/imagen22.png)
+
 Vemos como se han añadido las columnas indicadas:
 
-![](images/ba1.png)
+![](imagenes/imagen23.png)
 
 **Código seguro**
 
@@ -591,6 +608,8 @@ $conn->close();
     <button type="submit">Iniciar Sesión</button>
 </form>
 ~~~
+![](imagenes/imagen24.png)
+
 
 🔍 Qué hace este código:
 
@@ -637,6 +656,9 @@ USE SQLi
 ALTER TABLE usuarios ADD failed_attempts INT DEFAULT 0;
 ALTER TABLE usuarios ADD last_attempt TIMESTAMP NULL DEFAULT NULL;
 ~~~
+![](imagenes/imagen25.png)
+
+![](imagenes/imagen26.png)
 
 **🔐 2. login_weak4.php (login + generación del código)**
 
@@ -700,6 +722,8 @@ $conn->close();
 
 ~~~
 
+![](imagenes/imagen27.png)
+
 **🪪 3. mostrar_codigo.php**
 
 
@@ -712,6 +736,12 @@ echo "<h2>🔐 Tu código MFA es: <strong>$code</strong></h2>";
 echo "<a href='verificar_mfa.php'>Ir a verificación MFA</a>";
 ?>
 ~~~
+![](imagenes/imagen28.png)
+
+
+![](imagenes/imagen29.png)
+
+![](imagenes/imagen30.png)
 
 
 **✅ 4. verificar_mfa.php (verificación del código)**
@@ -768,7 +798,7 @@ $conn->close();
 </form>
 
 ~~~
-
+![](imagenes/imagen31.png)
 
 🧪 Flujo de prueba
 
@@ -776,11 +806,11 @@ $conn->close();
 
 - Si están bien, se genera un código y vas a mostrar_codigo.php.
 
-![](images/ba13.png)
+![](imagenes/imagen32.png)
 
 - Desde ahí, clicas a verificar_mfa.php e introduces el código.
 
-![](images/ba14.png)
+![](imagenes/imagen33.png)
 
 
 
